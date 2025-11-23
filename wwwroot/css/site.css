@@ -38,19 +38,20 @@ body {
     letter-spacing: 2px;
 }
 
-#authContainer button {
+#authContainer a {
     white-space: nowrap;
     font-weight: 500;
     transition: 0.3s;
     box-shadow: none;
 }
 
-    #authContainer button:active {
+    #authContainer a:active {
         scale: 0.95;
     }
 
 .btn-dark {
     --bs-btn-bg: #000000;
+    color: #FFF !important;
 }
 
 .btn-outline-dark {
