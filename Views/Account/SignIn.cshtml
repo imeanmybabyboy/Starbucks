@@ -1,7 +1,46 @@
-﻿@{
+﻿@model ASP_Starbucks.Models.Account.UserProfileViewModel;
+
+@{
     ViewData["Title"] = "SignIn";
 }
+<div class="row d-flex flex-column align-items-center gap-lg-5 mt-5">
+    <div class="text-center col">
+        <h3 class="fw-bold fs-2" style="font-family: 'Quicksand', sans-serif">Sign in or create account</h3>
+    </div>
 
-<div class="text-center">
-    <h1 class="display-4">Sign in or create account</h1>
+    <div class="col border p-4 d-flex flex-column align-items-start gap-lg-4 rounded-3 box-shadow shadow" style="width: fit-content">
+        <h6>
+            * indicates required field
+        </h6>
+
+        <form id="auth-form" method="post" novalidate class="needs-validation">
+            <div class="form-floating mb-3 fs-5 rounded-cirlce" id="user-name-email">
+                <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingLogin" placeholder=""
+                       required
+                       name="user-name-email"
+                value="admin">
+                <label id="floatingLoginLabel" for="floatingLogin">* Username or email address</label>
+
+                <div class="invalid-feedback ps-4">
+                    Enter an email/username.
+                </div>
+            </div>
+            <div class="form-floating mb-3 fs-5 rounded-cirlce" id="password">
+                <input type="password" class="form-control shadow-none fs-5 py-0" id="floatingPassword" placeholder=""
+                       required
+                       name="user-password"
+                value="admin">
+                <label id="floatingPasswordLabel" for="floatingPassword">* Password</label>
+
+                <div class="invalid-feedback ps-4 fs-6">
+                    Enter a password.
+                </div>
+            </div>
+        </form>
+
+        <button class="btn btn-success rounded-pill fs-5 fw-bold p-3 px-4 shadow-none"
+                form="auth-form">
+            Sign in
+        </button>
+    </div>
 </div>

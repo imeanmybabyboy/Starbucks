@@ -1,0 +1,8 @@
+﻿.form-floating {
+    width: 450px;
+}
+
+.invalid-feedback {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
