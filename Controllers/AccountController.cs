@@ -16,6 +16,22 @@ namespace ASP_Starbucks.Controllers
             return View();
         }
 
+        public IActionResult Create()
+        {
+            bool isWindowOpened = true;
+            ViewData["isWindowOpened"] = isWindowOpened;
+
+            return View();
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            bool isWindowOpened = true;
+            ViewData["isWindowOpened"] = isWindowOpened;
+
+            return View();
+        }
+
         public IActionResult Authenticate()
         {
             // checking for authorization header existence

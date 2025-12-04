@@ -53,11 +53,13 @@ loginInput.addEventListener("focusout", () => {
 
 loginInput.addEventListener('input', (e) => {
     let login = e.target.value.trim();
+    let loginValidationCont = document.getElementById("loginValidation");
 
     if (login.length === 0) {
         if (loginInput.focused) {
             loginInput.style.border = "2px solid #C82014";
         }
+        loginValidationCont.style.display = "flex";
         loginInput.classList.add("is-invalid");
         loginInput.classList.remove("is-valid");
         loginLabel.style.color = "#C82014";
@@ -66,6 +68,7 @@ loginInput.addEventListener('input', (e) => {
         if (loginInput.focused) {
             loginInput.style.border = "2px solid #00754A";
         }
+        loginValidationCont.style.display = "none";
         loginInput.classList.remove("is-invalid");
         loginInput.classList.add("is-valid");
         loginLabel.style.color = "#00754A";
@@ -111,12 +114,14 @@ passwordInput.addEventListener("focusout", () => {
 })
 
 passwordInput.addEventListener('input', (e) => {
-    let password = e.target.value.trim();
+    let password = e.target.value;
+    let passValidationCont = document.getElementById("passValidation");
 
     if (password.length === 0) {
         if (passwordInput.focused) {
             passwordInput.style.border = "2px solid #C82014";
         }
+        passValidationCont.style.display = "flex";
         passwordInput.classList.add("is-invalid");
         passwordInput.classList.remove("is-valid");
         passwordLabel.style.color = "#C82014";
@@ -125,6 +130,7 @@ passwordInput.addEventListener('input', (e) => {
         if (passwordInput.focused) {
             passwordInput.style.border = "2px solid #00754A";
         }
+        passValidationCont.style.display = "none";
         passwordInput.classList.remove("is-invalid");
         passwordInput.classList.add("is-valid");
         passwordLabel.style.color = "#00754A";
@@ -172,11 +178,48 @@ document.addEventListener("submit", (e) => {
                     Authorization: "Basic " + basicCredentials
                 }
             }).then(r => {
-                r.text().then(error => {
-                    console.log(error);
+                r.text().then(msg => {
+                    console.log(msg);
                 });
             })
         }
     }
+})
 
+const submitBtn = document.getElementById("submit-btn");
+submitBtn.addEventListener("mousedown", (e) => {
+    e.target.classList.remove("shadow");
+    e.target.classList.add("shadow-sm");
+    e.target.style.transform = "translateY(5px)"
+})
+
+submitBtn.addEventListener("mouseup", (e) => {
+    e.target.classList.remove("shadow-sm");
+    e.target.classList.add("shadow");
+    e.target.style.transform = "translateY(0)"
+})
+
+submitBtn.addEventListener("mouseleave", (e) => {
+    e.target.classList.remove("shadow-sm");
+    e.target.classList.add("shadow");
+    e.target.style.transform = "translateY(0)"
+})
+
+const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+const popoverDetails = new bootstrap.Popover('#details', {
+    container: 'body'
+})
+
+popoverDetails.setContent({
+    ".popover-body": "Checking this box will reduce the number of times you’re asked to sign in. To keep your account secure, use this option only on your personal devices.",
+})
+
+const popoverForgotUsername = new bootstrap.Popover('#forgot-username', {
+    container: 'body'
+})
+
+popoverForgotUsername.setContent({
+    ".popover-body": "You can now use your email instead of a username.",
 })
