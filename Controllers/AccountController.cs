@@ -1,4 +1,11 @@
-﻿using ASP_Starbucks.Models.Account;
+﻿using ASP_Starbucks.Data;
+using ASP_Starbucks.Data.Entities;
+using ASP_Starbucks.Middleware;
+using ASP_Starbucks.Models.Account;
+using ASP_Starbucks.Services.Hash;
+using ASP_Starbucks.Services.Kdf;
+using ASP_Starbucks.Services.Random;
+using ASP_Starbucks.Services.Salt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Text;
@@ -6,18 +13,31 @@ using System.Text.Json;
 
 namespace ASP_Starbucks.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(IKdfService kdfService, ISaltService saltService, DataContext dataContext) : Controller
     {
         public IActionResult SignIn()
         {
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+            if (isAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             bool isWindowOpened = true;
             ViewData["isWindowOpened"] = isWindowOpened;
+
 
             return View();
         }
 
         public IActionResult Create()
         {
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+            if (isAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             bool isWindowOpened = true;
             ViewData["isWindowOpened"] = isWindowOpened;
 
@@ -32,14 +52,18 @@ namespace ASP_Starbucks.Controllers
             return View();
         }
 
-        public IActionResult Authenticate()
+        public JsonResult Authenticate()
         {
             // checking for authorization header existence
             string authHeader = Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authHeader))
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Content("Missing Authorization header");
+                return Json(new
+                {
+                    status = "Error",
+                    error = "Missing Authorization header"
+                });
             }
 
             // checking correct scheme - "Basic " 
@@ -47,7 +71,11 @@ namespace ASP_Starbucks.Controllers
             if (!authHeader.StartsWith(scheme))
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Content($"Invalid Authorization scheme: {scheme}only");
+                return Json(new
+                {
+                    status = "Error",
+                    error = $"Invalid Authorization scheme: {scheme}only"
+                });
             }
 
             // checking basic credentials for being empty
@@ -55,7 +83,11 @@ namespace ASP_Starbucks.Controllers
             if (basicCredentials.Length <= 3)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Content($"Invalid or empty {scheme}Credentials");
+                return Json(new
+                {
+                    status = "Error",
+                    error = $"Invalid or empty {scheme}Credentials"
+                });
             }
 
             // decoding credentials from Base64
@@ -67,7 +99,11 @@ namespace ASP_Starbucks.Controllers
             catch (Exception ex)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Content($"Invalid {scheme}Credentials format: {ex.Message}");
+                return Json(new
+                {
+                    status = "Error",
+                    error = $"Invalid {scheme}Credentials format: {ex.Message}"
+                });
             }
 
             // divide credentials by ":" into 2 parts
@@ -75,15 +111,62 @@ namespace ASP_Starbucks.Controllers
             if (parts.Length != 2)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Content($"Invalid {scheme}user-pass format: missing ':' separator");
+                return Json(new
+                {
+                    status = "Error",
+                    error = $"Invalid {scheme}user-pass format: missing ':' separator"
+                });
             }
 
             string login = parts[0];
             string password = parts[1];
 
-            // create database and follow the instructions
+            User user;
+            try
+            {
+                user = dataContext.Users.FirstOrDefault(u => u.Email == login && u.DeletedAt == null)!;
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    status = "Error",
+                    error = ex.Message
+                });
+            }
 
-            return Content("Everything is fine");
+
+            // checking for user presence in the db
+            if (user == null)
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Json(new
+                {
+                    status = "Error",
+                    error = "The email or password you entered is not valid. Please try again."
+                });
+            }
+
+
+            // checking for password correctness
+            string dk = kdfService.Dk(password, user.Salt);
+            if (dk != user.Dk)
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Json(new
+                {
+                    status = "Error",
+                    error = "The email or password you entered is not valid. Please try again."
+                });
+            }
+
+            AuthSessionMiddleware.SaveAuth(HttpContext, user);
+            
+            return Json(new
+            {
+                status = "Ok",
+                redirect = Url.Action("Index", "Home")
+            });
         }
     }
 }

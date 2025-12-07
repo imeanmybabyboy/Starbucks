@@ -177,11 +177,15 @@ document.addEventListener("submit", (e) => {
                 headers: {
                     Authorization: "Basic " + basicCredentials
                 }
-            }).then(r => {
-                r.text().then(msg => {
-                    console.log(msg);
-                });
-            })
+            }).then(r => r.json())
+                .then(j => {
+                    if (j.status === "Ok") {
+                        window.location.href = j.redirect
+                    }
+                    else {
+                        console.log(j)
+                    }
+                })
         }
     }
 })

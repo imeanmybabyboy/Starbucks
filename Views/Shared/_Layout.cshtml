@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
+}
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -49,12 +54,26 @@
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="GiftCards">Gift cards</a>
                                 </li>
                             </ul>
-                            <div id="authContainer" class="d-flex align-items-center gap-3">
-                                @* sign in button *@
-                                <a class="btn btn-outline-dark border-1 rounded-pill py-1" asp-area="" asp-controller="Account" asp-action="SignIn">Sign in</a>
 
-                                @* sign up button *@
-                                <a asp-controller="Account" asp-action="Create" class="btn btn-dark border-1 rounded-pill py-1">Join now</a>
+                            <div class="d-flex align-items-center gap-4">
+                                <div>
+                                    Find a store
+                                </div>
+
+                                @if (isAuthenticated)
+                                {
+                                    <div>Account</div>
+                                }
+                                else
+                                {
+                                    <div id="authContainer" class="d-flex align-items-center gap-3">
+                                        @* sign in button *@
+                                        <a class="btn btn-outline-dark border-1 rounded-pill py-1" asp-area="" asp-controller="Account" asp-action="SignIn">Sign in</a>
+
+                                        @* sign up button *@
+                                        <a asp-controller="Account" asp-action="Create" class="btn btn-dark border-1 rounded-pill py-1">Join now</a>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
