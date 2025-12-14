@@ -2,7 +2,6 @@
     bool isAuthenticated = Context.User.Identity?.IsAuthenticated ?? false;
 }
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/signin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/personal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ASP_Starbucks.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     @* header font - FiraMono *@
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,13 +29,13 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom border-2 mb-3 py-lg-4 px-lg-4 pe-lg-5">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom border-2 py-lg-4 px-lg-4 pe-lg-5">
             <div class="container-fluid d-flex justify-content-start">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="https://upload.wikimedia.org/wikipedia/sco/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/297px-Starbucks_Corporation_Logo_2011.svg.png?20170312192423" alt="starbucks logo" style="width: 3rem" />
                 </a>
 
-                @if (!(ViewData["isWindowOpened"] as bool? == true))
+                @if (!(ViewData["isHeaderNavHidden"] as bool? == true))
                 {
                     <div class="f-dlex justify-content-between align-items-center w-100">
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -55,23 +56,38 @@
                                 </li>
                             </ul>
 
-                            <div class="d-flex align-items-center gap-4">
-                                <div>
-                                    Find a store
-                                </div>
+                            <div class="d-flex align-items-center gap-5">
+                                <a id="find-store" asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-2 fw-bold text-decoration-none" role="button" style="color: #000">
+                                    <i class="bi bi-geo-alt-fill fs-5"></i> Find a store
+                                </a>
 
                                 @if (isAuthenticated)
                                 {
-                                    <div>Account</div>
+                                    <div class="dropdown">
+
+                                        <div class="dropdown d-flex align-items-center gap-2 fw-bold user-select-none position-relative" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-person-circle fs-5"></i>
+                                            Account
+                                            <i class="bi bi-chevron-down" id="animated-chevron"></i>
+                                        </div>
+
+                                        <ul class="dropdown-menu" id="account-dropdown" style="background-color: #F9F9F9">
+                                            <li><a class="dropdown-item" asp-controller="User" asp-action="Personal">Personal info</a></li>
+                                            <li><a class="dropdown-item" href="#">Privacy and data</a></li>
+                                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                                            <li><hr class="dropdown-divider w-75 mx-auto"></li>
+                                            <li><a class="dropdown-item" href="?logout">Sign out</a></li>
+                                        </ul>
+                                    </div>
                                 }
                                 else
                                 {
                                     <div id="authContainer" class="d-flex align-items-center gap-3">
                                         @* sign in button *@
-                                        <a class="btn btn-outline-dark border-1 rounded-pill py-1" asp-area="" asp-controller="Account" asp-action="SignIn">Sign in</a>
+                                        <a class="btn btn-outline-dark border-1 rounded-pill py-1" asp-area="" asp-controller="User" asp-action="SignIn">Sign in</a>
 
                                         @* sign up button *@
-                                        <a asp-controller="Account" asp-action="Create" class="btn btn-dark border-1 rounded-pill py-1">Join now</a>
+                                        <a asp-controller="User" asp-action="Create" class="btn btn-dark border-1 rounded-pill py-1">Join now</a>
                                     </div>
                                 }
                             </div>
@@ -79,11 +95,10 @@
                     </div>
                 }
             </div>
-
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
@@ -96,7 +111,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/signin.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

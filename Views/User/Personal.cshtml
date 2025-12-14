@@ -1,0 +1,44 @@
+﻿@model ASP_Starbucks.Models.User.UserProfileViewModel;
+
+@{
+    ViewData["Title"] = "Personal info";
+    var user = Model.User;
+}
+<div class="d-flex m-0 p-0 vh-100 overflow-hidden" id="personal-information-container">
+    <div class="ms-lg-5 ps-lg-5 d-flex align-items-center" id="personal-information-header">
+        <h4 class="fw-bold">Personal</h4>
+    </div>
+
+    <div class="d-flex flex-column align-items-center gap-3 h-100 py-lg-6 px-5 overflow-y-auto border-start border-1" id="personal-information-body">
+        <div class="d-flex flex-column gap-3">
+            <h2 class="display-6">@(user.Name + " " + user.Surname)</h2>
+            <div class="d-flex flex-column gap-sm-2">
+                <h6>* indicates required fields</h6>
+
+                <form class="needs-validation" method="post" novalidate>
+                    <div class="form-floating mb-3 fs-5 w-100 rounded-cirlce" id="user-first-name">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingFirstName"
+                               required
+                               name="user-first-name"
+                               value="@Model.User.Name">
+                        <label id="floatingFirstNameLabel" for="floatingFirstName">* First name</label>
+
+                        <div class="invalid-feedback ps-2 fs-6 gap-1 align-items-center" id="validation-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16">
+                                <path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                            </svg>
+                            Enter first name.
+                        </div>
+                    </div>
+
+                    sdokpqwjodiqjowijodwq
+                </form>
+            </div>
+
+        </div>
+        <button class="align-self-end">click</button>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/personal.js" asp-append-version="true"></script>

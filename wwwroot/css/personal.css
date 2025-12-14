@@ -1,0 +1,9 @@
+﻿#personal-information-header {
+    width: 40%;
+    height: 72vh !important;
+}
+
+#personal-information-body {
+    width: 60% !important;
+    background-color: #F9F9F9;
+}

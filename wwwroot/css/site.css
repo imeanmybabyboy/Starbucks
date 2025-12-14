@@ -1,4 +1,4 @@
-html {
+﻿html {
     font-size: 14px;
 }
 
@@ -67,4 +67,56 @@ body {
 
 .navbar-nav > li > a:hover {
     color: #00704A !important;
+}
+
+#find-store:hover {
+    color: #00754A !important;
+}
+
+#account-dropdown {
+    transform: translate(-45px, 38px);
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    z-index: 1;
+}
+
+#animated-chevron {
+    display: block;
+}
+
+    #animated-chevron.open {
+        animation: open-nav 0.2s linear forwards;
+    }
+
+    #animated-chevron.close {
+        animation: close-nav 0.2s linear forwards;
+    }
+
+@keyframes open-nav {
+    0%{
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+@keyframes close-nav {
+    0% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+#account-dropdown li a {
+    color: black;
+    padding: 20px 30px;
+}
+
+#account-dropdown li a:hover {
+    background-color: #FFF;
 }

@@ -83,9 +83,9 @@ namespace ASP_Starbucks.Data
                     {
                         Id = Guid.Parse("C588EFF8-359A-4C25-949E-D7235525F88F"),
                         RoleId = "User",
-                        Name = "UserName",
-                        Surname = "UserSurname",
-                        Email = "user@example.com",
+                        Name = "Jack",
+                        Surname = "Daniel",
+                        Email = "jack.daniel@example.com",
                         Salt = userSalt,
                         Dk = userDk,
                         RegisteredAt = DateTime.MinValue,

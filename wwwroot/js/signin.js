@@ -1,4 +1,5 @@
-﻿class Base64 {
+﻿
+class Base64 {
     static #textEncoder = new TextEncoder();
     static #textDecoder = new TextDecoder();
 
@@ -14,66 +15,83 @@
     static jwtDecodePayload = (jwt) => JSON.parse(this.decodeUrl(jwt.split('.')[1]));
 }
 
+///////////////// SIGN IN FORM
 // login validation
 let loginInput = document.getElementById("floatingLogin");
 let loginLabel = document.getElementById("floatingLoginLabel");
 let loginFirstFocus = true;
 
-loginInput.addEventListener("focusin", (e) => {
-    loginInput.focused = true;
-
-    if (loginInput.value.length === 0) {
-        if (loginFirstFocus) {
-            loginLabel.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
-            loginInput.style.border = "2px solid #00754A";
-            loginFirstFocus = false;
+function checkInputFocusIn(input, label, firstFocus) {
+    if (input.value.length === 0) {
+        if (firstFocus) {
+            label.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
+            input.style.border = "2px solid #00754A";
+            firstFocus = false;
         } else {
-            loginLabel.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
-            loginInput.style.border = "2px solid #C82014";
-            loginLabel.style.color = "#C82014";
+            label.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
+            input.style.border = "2px solid #C82014";
+            label.style.color = "#C82014";
         }
     }
     else {
-        loginInput.style.border = "2px solid #00754A";
-        loginLabel.style.color = "#00754A";
+        input.style.border = "2px solid #00754A";
+        label.style.color = "#00754A";
     }
+}
+function checkInputFocusOut(input, label) {
+    if (input.value.trim().length === 0) {
+        label.style.transform = "scale(1) translateY(0) translateX(0)";
+        input.style.border = "1px solid #C82014";
+        input.classList.add("is-invalid");
+        label.style.color = "#C82014";
+    }
+    else {
+        input.style.border = "1px solid #00754A";
+    }
+}
+function checkInputTextChange(input, label) {
+    let value = input.value.trim();
+    let validationCont = input.parentNode.querySelector("#validation-container");
+
+    if (value.length === 0) {
+        if (input.focused) {
+            input.style.border = "2px solid #C82014";
+        }
+        validationCont.style.display = "flex";
+        input.classList.add("is-invalid");
+        input.classList.remove("is-valid");
+        label.style.color = "#C82014";
+    }
+    else {
+        if (input.focused) {
+            input.style.border = "2px solid #00754A";
+        }
+        validationCont.style.display = "none";
+        input.classList.remove("is-invalid");
+        input.classList.add("is-valid");
+        label.style.color = "#00754A";
+    }
+}
+function handleFilledInput(input, label) {
+    if (input.value.length > 0) {
+        label.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
+        input.style.border = "1px solid #00754A";
+        label.style.color = "#00754A";
+        input.classList.add("is-valid")
+    }
+}
+
+loginInput.addEventListener("focusin", () => {
+    loginInput.focused = true;
+    checkInputFocusIn(loginInput, loginLabel, loginFirstFocus);
 });
-
 loginInput.addEventListener("focusout", () => {
-    if (loginInput.value.trim().length === 0) {
-        loginLabel.style.transform = "scale(1) translateY(0) translateX(0)";
-        loginInput.style.border = "1px solid #C82014";
-        loginInput.classList.add("is-invalid");
-        loginLabel.style.color = "#C82014";
-    }
-    else {
-        loginInput.style.border = "1px solid #00754A";
-    }
-})
-
+    loginFirstFocus = false;
+    checkInputFocusOut(loginInput, loginLabel);
+});
 loginInput.addEventListener('input', (e) => {
-    let login = e.target.value.trim();
-    let loginValidationCont = document.getElementById("loginValidation");
-
-    if (login.length === 0) {
-        if (loginInput.focused) {
-            loginInput.style.border = "2px solid #C82014";
-        }
-        loginValidationCont.style.display = "flex";
-        loginInput.classList.add("is-invalid");
-        loginInput.classList.remove("is-valid");
-        loginLabel.style.color = "#C82014";
-    }
-    else {
-        if (loginInput.focused) {
-            loginInput.style.border = "2px solid #00754A";
-        }
-        loginValidationCont.style.display = "none";
-        loginInput.classList.remove("is-invalid");
-        loginInput.classList.add("is-valid");
-        loginLabel.style.color = "#00754A";
-    }
-})
+    checkInputTextChange(e.target, loginLabel)
+});
 
 
 // password validation
@@ -81,60 +99,23 @@ let passwordInput = document.getElementById("floatingPassword")
 let passwordLabel = document.getElementById("floatingPasswordLabel")
 let passwordFirstFocus = true;
 
-passwordInput.addEventListener("focusin", (e) => {
+passwordInput.addEventListener("focusin", () => {
     passwordInput.focused = true;
-
-    if (passwordInput.value.length === 0) {
-        if (passwordFirstFocus) {
-            passwordLabel.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
-            passwordInput.style.border = "2px solid #00754A";
-            passwordFirstFocus = false;
-        } else {
-            passwordLabel.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";
-            passwordInput.style.border = "2px solid #C82014";
-            passwordLabel.style.color = "#C82014";
-        }
-    }
-    else {
-        passwordInput.style.border = "2px solid #00754A";
-        passwordLabel.style.color = "#00754A";
-    }
+    checkInputFocusIn(passwordInput, passwordLabel, passwordFirstFocus)
 });
-
 passwordInput.addEventListener("focusout", () => {
-    if (passwordInput.value.trim().length === 0) {
-        passwordLabel.style.transform = "scale(1) translateY(0) translateX(0)";
-        passwordInput.style.border = "1px solid #C82014";
-        passwordInput.classList.add("is-invalid");
-        passwordLabel.style.color = "#C82014";
-    }
-    else {
-        passwordInput.style.border = "1px solid #00754A";
-    }
+    passwordFirstFocus = false;
+    checkInputFocusOut(passwordInput, passwordLabel)
+})
+passwordInput.addEventListener('input', (e) => {
+    checkInputTextChange(e.target, passwordLabel)
 })
 
-passwordInput.addEventListener('input', (e) => {
-    let password = e.target.value;
-    let passValidationCont = document.getElementById("passValidation");
 
-    if (password.length === 0) {
-        if (passwordInput.focused) {
-            passwordInput.style.border = "2px solid #C82014";
-        }
-        passValidationCont.style.display = "flex";
-        passwordInput.classList.add("is-invalid");
-        passwordInput.classList.remove("is-valid");
-        passwordLabel.style.color = "#C82014";
-    }
-    else {
-        if (passwordInput.focused) {
-            passwordInput.style.border = "2px solid #00754A";
-        }
-        passValidationCont.style.display = "none";
-        passwordInput.classList.remove("is-invalid");
-        passwordInput.classList.add("is-valid");
-        passwordLabel.style.color = "#00754A";
-    }
+// DOMContentLoadedEvent
+document.addEventListener("DOMContentLoaded", () => {
+    handleFilledInput(loginInput, loginLabel)
+    handleFilledInput(passwordInput, passwordLabel)
 })
 
 
@@ -168,45 +149,64 @@ document.addEventListener("submit", (e) => {
             passwordInput.style.border = "2px solid #C82014";
         }
         else {
+            loginInput.classList.add("is-valid")
+            passwordInput.classList.add("is-valid")
             const userPass = login + ":" + password;
             const basicCredentials = Base64.encode(userPass);
             const header = "Authorization: Basic " + basicCredentials;
+            const submitBtn = document.getElementById("submit-btn");
 
-            fetch("/Account/Authenticate", {
-                method: "GET",
-                headers: {
-                    Authorization: "Basic " + basicCredentials
-                }
-            }).then(r => r.json())
-                .then(j => {
-                    if (j.status === "Ok") {
-                        window.location.href = j.redirect
+            const spinner = `<div class="spinner-border text-light" style="width: 35px; height: 35px" role="status">
+                                 <span class="visually-hidden">Loading...</span>
+                             </div>`
+            if (!submitBtn.classList.contains("loading")) {
+                submitBtn.innerHTML = spinner;
+                submitBtn.classList.add("loading")
+            }
+
+            setTimeout(() => {
+                fetch("/User/Authenticate", {
+                    method: "GET",
+                    headers: {
+                        Authorization: "Basic " + basicCredentials
                     }
-                    else {
-                        console.log(j)
-                    }
-                })
+                }).then(r => r.json())
+                    .then(j => {
+                        submitBtn.innerHTML = "Sign in";
+                        submitBtn.classList.remove("loading");
+                        if (j.status === "Ok") {
+                            window.location.href = j.redirect
+                        }
+                        else {
+                            console.log(j)
+                        }
+                    })
+            }, 1000)
         }
     }
 })
 
+
 const submitBtn = document.getElementById("submit-btn");
 submitBtn.addEventListener("mousedown", (e) => {
-    e.target.classList.remove("shadow");
-    e.target.classList.add("shadow-sm");
-    e.target.style.transform = "translateY(5px)"
+    const btn = e.target.closest("button");
+    btn.classList.remove("shadow");
+    btn.classList.add("shadow-sm");
+    btn.style.transform = "translateY(5px)"
 })
 
 submitBtn.addEventListener("mouseup", (e) => {
-    e.target.classList.remove("shadow-sm");
-    e.target.classList.add("shadow");
-    e.target.style.transform = "translateY(0)"
+    const btn = e.target.closest("button");
+    btn.classList.remove("shadow-sm");
+    btn.classList.add("shadow");
+    btn.style.transform = "translateY(0)"
 })
 
 submitBtn.addEventListener("mouseleave", (e) => {
-    e.target.classList.remove("shadow-sm");
-    e.target.classList.add("shadow");
-    e.target.style.transform = "translateY(0)"
+    const btn = e.target.closest("button");
+    btn.classList.remove("shadow-sm");
+    btn.classList.add("shadow");
+    btn.style.transform = "translateY(0)"
 })
 
 const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')

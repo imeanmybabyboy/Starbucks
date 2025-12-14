@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace ASP_Starbucks.Models.Account
+namespace ASP_Starbucks.Models.User
 {
-    public class UserProfileFormModel
+    public class UserSigninFormModel
     {
         [FromForm(Name = "user-name-email")]
         [Required(ErrorMessage = "Enter an email/username")]

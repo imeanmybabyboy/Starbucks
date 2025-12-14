@@ -1,19 +1,21 @@
 ﻿using ASP_Starbucks.Data;
 using ASP_Starbucks.Data.Entities;
 using ASP_Starbucks.Middleware;
-using ASP_Starbucks.Models.Account;
+using ASP_Starbucks.Models.User;
 using ASP_Starbucks.Services.Hash;
 using ASP_Starbucks.Services.Kdf;
 using ASP_Starbucks.Services.Random;
 using ASP_Starbucks.Services.Salt;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
 namespace ASP_Starbucks.Controllers
 {
-    public class AccountController(IKdfService kdfService, ISaltService saltService, DataContext dataContext) : Controller
+    public class UserController(IKdfService kdfService, DataContext dataContext) : Controller
     {
         public IActionResult SignIn()
         {
@@ -24,10 +26,25 @@ namespace ASP_Starbucks.Controllers
             }
 
             bool isWindowOpened = true;
-            ViewData["isWindowOpened"] = isWindowOpened;
+            ViewData["isHeaderNavHidden"] = isWindowOpened;
 
 
             return View();
+        }
+
+        public IActionResult Personal()
+        {
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+            if (!isAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                string userId = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value;
+                var user = dataContext.Users.Include(u => u.Role).First(u => u.Id == Guid.Parse(userId) && u.DeletedAt == null)!;
+                return View(new UserProfileViewModel() { User = user, IsPersonal = true });
+            }
         }
 
         public IActionResult Create()
@@ -39,7 +56,7 @@ namespace ASP_Starbucks.Controllers
             }
 
             bool isWindowOpened = true;
-            ViewData["isWindowOpened"] = isWindowOpened;
+            ViewData["isHeaderNavHidden"] = isWindowOpened;
 
             return View();
         }
@@ -47,7 +64,7 @@ namespace ASP_Starbucks.Controllers
         public IActionResult ForgotPassword()
         {
             bool isWindowOpened = true;
-            ViewData["isWindowOpened"] = isWindowOpened;
+            ViewData["isHeaderNavHidden"] = isWindowOpened;
 
             return View();
         }
@@ -161,7 +178,7 @@ namespace ASP_Starbucks.Controllers
             }
 
             AuthSessionMiddleware.SaveAuth(HttpContext, user);
-            
+
             return Json(new
             {
                 status = "Ok",
