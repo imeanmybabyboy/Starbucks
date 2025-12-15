@@ -164,7 +164,10 @@ document.addEventListener("submit", (e) => {
                 submitBtn.classList.add("loading")
             }
 
-            setTimeout(() => {
+            // Clear invalid sign in feedback
+            handleInvalidSignin();
+
+            setTimeout(async () => {
                 fetch("/User/Authenticate", {
                     method: "GET",
                     headers: {
@@ -174,17 +177,42 @@ document.addEventListener("submit", (e) => {
                     .then(j => {
                         submitBtn.innerHTML = "Sign in";
                         submitBtn.classList.remove("loading");
+
                         if (j.status === "Ok") {
                             window.location.href = j.redirect
                         }
                         else {
-                            console.log(j)
+                            handleInvalidSignin(j.error, "danger");
                         }
                     })
-            }, 1000)
+            }, 500)
         }
     }
 })
+
+function handleInvalidSignin(message = null, type = null) {
+    const alertPlaceholder = document.getElementById('live-alert-placeholder');
+    alertPlaceholder.innerHTML = '';
+
+    if (message !== null && type !== null) {
+        const appendAlert = (message, type) => {
+            const wrapper = document.createElement('div');
+            //wrapper.style.maxWidth = "20rem";
+            wrapper.innerHTML = [
+                `<div class="alert alert-${type} alert-dismissible text-dark p-3" role="alert" style="border-color: #C82014; background-color: #FDF6F6">`,
+                `   <div class="d-flex align-items-center justify-content-between">`,
+                `       <h3>Sign is unsuccessfull.</h3>`,
+                `       <i class="bi bi-exclamation-circle-fill text-danger"></i>`,
+                `   </div>`,
+                `   <div>${message}</div>`,
+                '</div>'
+            ].join('');
+            alertPlaceholder.append(wrapper);
+        }
+
+        appendAlert(message, type)
+    }
+}
 
 
 const submitBtn = document.getElementById("submit-btn");

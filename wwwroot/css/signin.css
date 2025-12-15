@@ -57,3 +57,7 @@
     #sign-up:active {
         scale: 0.95;
     }
+
+#live-alert-placeholder {
+    width: 28.1rem !important;
+}
