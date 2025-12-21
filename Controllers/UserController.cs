@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ASP_Starbucks.Controllers
 {
@@ -43,7 +45,80 @@ namespace ASP_Starbucks.Controllers
             {
                 string userId = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value;
                 var user = dataContext.Users.Include(u => u.Role).First(u => u.Id == Guid.Parse(userId) && u.DeletedAt == null)!;
-                return View(new UserProfileViewModel() { User = user, IsPersonal = true });
+
+                ICollection<int> days = new List<int>();
+                int maxDays = 31;
+                for (int i = 1; i <= maxDays; i++)
+                {
+                    days.Add(i);
+                }
+
+                ICollection<string> months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+                ICollection<string> states = new List<string>()
+                {
+                    "Alabama",
+                    "Alaska",
+                    "Arizona",
+                    "Arkansas",
+                    "California",
+                    "Colorado",
+                    "Connecticut",
+                    "Delaware",
+                    "Florida",
+                    "Georgia",
+                    "Hawaii",
+                    "Idaho",
+                    "Illinois",
+                    "Indiana",
+                    "Iowa",
+                    "Kansas",
+                    "Kentucky",
+                    "Louisiana",
+                    "Maine",
+                    "Maryland",
+                    "Massachusetts",
+                    "Michigan",
+                    "Minnesota",
+                    "Mississippi",
+                    "Missouri",
+                    "Montana",
+                    "Nebraska",
+                    "Nevada",
+                    "New Hampshire",
+                    "New Jersey",
+                    "New Mexico",
+                    "New York",
+                    "North Carolina",
+                    "North Dakota",
+                    "Ohio",
+                    "Oklahoma",
+                    "Oregon",
+                    "Pennsylvania",
+                    "Rhode Island",
+                    "South Carolina",
+                    "South Dakota",
+                    "Tennessee",
+                    "Texas",
+                    "Utah",
+                    "Vermont",
+                    "Virginia",
+                    "Washington",
+                    "West Virginia",
+                    "Wisconsin",
+                    "Wyoming"
+                };
+
+                UserProfileViewModel profileViewModel = new()
+                {
+                    User = user,
+                    IsPersonal = true,
+                    Days = days,
+                    Months = months,
+                    States = states,
+                };
+
+                return View(profileViewModel);
             }
         }
 
@@ -67,6 +142,140 @@ namespace ASP_Starbucks.Controllers
             ViewData["isHeaderNavHidden"] = isWindowOpened;
 
             return View();
+        }
+
+        [HttpPatch]
+        public async Task<JsonResult> Update([FromBody] UserUpdateFormModel formModel)
+        {
+
+            bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+
+            if (!isAuthenticated)
+            {
+                return Json(new
+                {
+                    Status = "error",
+                    Message = "Unauthorized"
+                });
+            }
+
+            string userId = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.Sid).Value;
+            var user = dataContext
+                .Users
+                .First(u => u.Id == Guid.Parse(userId));
+
+            if (user == null)
+            {
+                return Json(new
+                {
+                    Status = "error",
+                    Message = "Invalid user restoring from identity"
+                });
+            }
+
+            Type userType = user.GetType();
+
+            // check if at least one field is present
+            bool isAllNulls = true;
+
+            foreach (var prop in formModel.GetType().GetProperties())
+            {
+                object? val = prop.GetValue(formModel, null);
+
+                if (val != null)
+                {
+                    isAllNulls = false;
+
+                    if (prop.Name == "Phone")
+                    {
+                        var userProp = userType.GetProperty(prop.Name);
+
+                        if (userProp != null)
+                        {
+                            if (formModel.Phone != "")
+                            {
+                                if (!Regex.IsMatch(formModel.Phone!, @"\++") && formModel.Phone != "")
+                                {
+                                    return Json(new
+                                    {
+                                        Status = "error",
+                                        Message = "Phone number should start from '+' + country code"
+                                    });
+                                }
+                                else if (!string.IsNullOrEmpty(formModel.Phone) && formModel.Phone.Length < 2)
+                                {
+                                    return Json(new
+                                    {
+                                        Status = "error",
+                                        Message = "Phone number cannot be that short"
+                                    });
+                                }
+                                else if (!Regex.IsMatch(formModel.Phone!, @"^\+?[0-9]+$") && formModel.Phone != "")
+                                {
+                                    return Json(new
+                                    {
+                                        Status = "error",
+                                        Message = "Phone number should contain only numbers"
+                                    });
+                                }
+                            }
+
+                            if (formModel.Phone == "")
+                            {
+                                userProp.SetValue(user, null);
+                            }
+                            else
+                            {
+                                userProp.SetValue(user, val);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var userProp = userType.GetProperty(prop.Name);
+
+                        if (val != null)
+                        {
+                            if (val.ToString() == "")
+                            {
+                                userProp!.SetValue(user, null);
+                            }
+                            else if (userProp != null)
+                            {
+                                userProp.SetValue(user, val);
+                            }
+                            else
+                            {
+                                return Json(new
+                                {
+                                    Status = "ok",
+                                    Message = $"Form property '{prop.Name}' was not found in identity '{userType.Name}'"
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isAllNulls)
+            {
+                return Json(new
+                {
+                    Status = "ok",
+                    Message = "All nulls"
+                });
+            }
+
+            var saveTask = dataContext.SaveChangesAsync();
+            AuthSessionMiddleware.SaveAuth(HttpContext, user);
+
+            await saveTask;
+
+            return Json(new
+            {
+                Status = "ok",
+                Message = "Changes were saved"
+            });
         }
 
         public JsonResult Authenticate()

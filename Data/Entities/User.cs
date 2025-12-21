@@ -31,6 +31,9 @@ namespace ASP_Starbucks.Data.Entities
         [PersonalData]
         public string? State { get; set; }
 
+        [PersonalData]
+        public string? Zip { get; set; }
+
         public DateOnly? Birthdate { get; set; }
         public string Salt { get; set; } = null!;
         public string Dk { get; set; } = null!;

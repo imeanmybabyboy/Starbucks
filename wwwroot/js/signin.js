@@ -39,7 +39,7 @@ function checkInputFocusIn(input, label, firstFocus) {
     }
 }
 function checkInputFocusOut(input, label) {
-    if (input.value.trim().length === 0) {
+    if (input.value.length === 0) {
         label.style.transform = "scale(1) translateY(0) translateX(0)";
         input.style.border = "1px solid #C82014";
         input.classList.add("is-invalid");
@@ -50,7 +50,7 @@ function checkInputFocusOut(input, label) {
     }
 }
 function checkInputTextChange(input, label) {
-    let value = input.value.trim();
+    let value = input.value;
     let validationCont = input.parentNode.querySelector("#validation-container");
 
     if (value.length === 0) {
@@ -132,7 +132,7 @@ document.addEventListener("submit", (e) => {
 
         // login and password sumbit validation
         let loginInvalid = login.trim().length === 0;
-        let passwordInvalid = password.trim().length === 0;
+        let passwordInvalid = password.length === 0;
 
         if (loginInvalid) {
             loginInput.classList.add("is-invalid");
@@ -197,7 +197,6 @@ function handleInvalidSignin(message = null, type = null) {
     if (message !== null && type !== null) {
         const appendAlert = (message, type) => {
             const wrapper = document.createElement('div');
-            //wrapper.style.maxWidth = "20rem";
             wrapper.innerHTML = [
                 `<div class="alert alert-${type} alert-dismissible text-dark p-3" role="alert" style="border-color: #C82014; background-color: #FDF6F6">`,
                 `   <div class="d-flex align-items-center justify-content-between">`,
@@ -213,7 +212,6 @@ function handleInvalidSignin(message = null, type = null) {
         appendAlert(message, type)
     }
 }
-
 
 const submitBtn = document.getElementById("submit-btn");
 submitBtn.addEventListener("mousedown", (e) => {

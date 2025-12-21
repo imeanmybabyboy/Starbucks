@@ -3,23 +3,27 @@
 @{
     ViewData["Title"] = "Personal info";
     var user = Model.User;
+    var userBirthMonth = Model.User.Birthdate!.Value.ToDateTime(TimeOnly.MinValue).ToString("MMMM", new System.Globalization.CultureInfo("en-EN"));
+    var userBirthDay = Model.User.Birthdate!.Value.Day;
 }
-<div class="d-flex m-0 p-0 vh-100 overflow-hidden" id="personal-information-container">
+<div class="d-flex m-0 p-0 vh-100 overflow-hidden position-relative" id="personal-information-container">
+    <div class="alert-center z-3 mt-2" id="live-alert-placeholder"></div>
+
     <div class="ms-lg-5 ps-lg-5 d-flex align-items-center" id="personal-information-header">
         <h4 class="fw-bold">Personal</h4>
     </div>
 
-    <div class="d-flex flex-column align-items-center gap-3 h-100 py-lg-6 px-5 overflow-y-auto border-start border-1" id="personal-information-body">
+    <div class="d-flex flex-column align-items-center gap-3 h-100 py-lg-6 px-5 overflow-y-auto border-start border-1 position-relative" id="personal-information-body">
         <div class="d-flex flex-column gap-3">
             <h2 class="display-6">@(user.Name + " " + user.Surname)</h2>
             <div class="d-flex flex-column gap-sm-2">
-                <h6>* indicates required fields</h6>
+                <h6><span style="color: #007549">*</span> indicates required fields</h6>
 
-                <form class="needs-validation" style="max-width: 420px; width: 100%;" method="post" novalidate>
+                <form id="update-form" class="needs-validation d-flex flex-column gap-2" method="post" novalidate>
                     <div class="form-floating mb-3 fs-5 w-100" id="user-first-name">
                         <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingFirstName"
                                required
-                               name="user-first-name"
+                               name="Name"
                                value="@Model.User.Name">
                         <label id="floatingFirstNameLabel" for="floatingFirstName">* First name</label>
 
@@ -34,7 +38,7 @@
                     <div class="form-floating mb-3 fs-5 w-100" id="user-last-name">
                         <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingLastName"
                                required
-                               name="user-last-name"
+                               name="Surname"
                                value="@Model.User.Surname">
                         <label id="floatingLastNameLabel" for="floatingLastName">* Last name</label>
 
@@ -45,11 +49,64 @@
                             Enter last name.
                         </div>
                     </div>
+
+                    <div class="form-floating mb-3 fs-5 w-100" id="user-phone">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingPhone"
+                               required
+                               name="Phone"
+                        value="@Model.User.Phone">
+                        <label id="floatingPhoneLabel" for="floatingPhone">Mobile number</label>
+
+                        <div class="invalid-feedback ps-2 fs-6 gap-1 align-items-center" id="validation-container">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16">
+                                <path d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                            </svg>
+                            Feedback
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3 fs-5 w-100" id="user-address-1">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingAddress1"
+                               required
+                               name="Address1"
+                        value="@Model.User.Address1">
+                        <label id="floatingAddress1Label" for="floatingAddress1">Address line 1</label>
+                    </div>
+
+                    <div class="form-floating mb-3 fs-5 w-100" id="user-address-2">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingAddress2"
+                               required
+                               name="Address2"
+                               value="@Model.User.Address2">
+                        <label id="floatingAddress2Label" for="floatingAddress2">Address line 2</label>
+
+                        <span class="fs-6 ps-2 ms-1">Optional</span>
+                    </div>
+
+                    <div class="form-floating mb-3 fs-5 w-100" id="user-city">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingCity"
+                               required
+                               name="City"
+                        value="@Model.User.City">
+                        <label id="floatingCityLabel" for="floatingCity">City</label>
+                    </div>
+
+                    <div class="form-floating mb-3 fs-5 w-100" id="user-zip">
+                        <input type="text" class="form-control shadow-none fs-5 py-0" id="floatingZip"
+                               required
+                               name="Zip"
+                               value="@Model.User.Zip">
+                        <label id="floatingZipLabel" for="floatingZip">Zip code</label>
+                    </div>
                 </form>
             </div>
-
         </div>
-        <button class="align-self-end">click</button>
+
+        <button class="position-fixed end-0 translate-middle-x bottom-0 translate-middle-y mb-5 me-5 btn btn-success rounded-pill fs-5 fw-bold p-2 px-3 shadow"
+                type="button"
+                id="btn-profile-edit">
+            Save
+        </button>
     </div>
 </div>
 
