@@ -28,6 +28,13 @@ builder.Services.AddSession(options =>
 // Sessions
 builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader();
+    });
+});
 
 string connectionString = builder.Configuration.GetConnectionString("StarbucksDb") ?? throw new FileNotFoundException("Connection String Configuration: key not found: StarbucksDb");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
@@ -45,6 +52,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors();
 app.UseAuthorization();
 app.MapStaticAssets();
 app.UseSession();
