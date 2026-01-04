@@ -179,7 +179,8 @@ document.addEventListener("submit", (e) => {
                         submitBtn.classList.remove("loading");
 
                         if (j.status === "Ok") {
-                            window.location.href = j.redirect
+                            console.log(j);
+                            //window.location.href = "/"
                         }
                         else {
                             handleInvalidSignin(j.error, "danger");

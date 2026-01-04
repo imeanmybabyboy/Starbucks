@@ -18,21 +18,30 @@ builder.Services.AddSalt();
 builder.Services.AddHash();
 builder.Services.AddKdf();
 
+// Sessions
+builder.Services.AddDistributedMemoryCache();
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromSeconds(1000);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    
 });
 
-// Sessions
-builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("FrontendPolicy", policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyHeader();
+        policy
+        .WithOrigins("http://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
@@ -51,16 +60,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("FrontendPolicy");
+
 app.UseRouting();
-app.UseCors();
-app.UseAuthorization();
-app.MapStaticAssets();
+
 app.UseSession();
+app.UseAuthSession(); // Custom middleware
+app.UseAuthorization();
 
-
-// Custom middleware
-app.UseAuthSession();
-
+app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",

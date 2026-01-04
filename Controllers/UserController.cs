@@ -145,9 +145,8 @@ namespace ASP_Starbucks.Controllers
         }
 
         [HttpPatch]
-        public async Task<JsonResult> Update([FromBody] UserUpdateFormModel formModel)
+        public async Task<JsonResult> ApiUpdate([FromBody] UserUpdateFormModel formModel)
         {
-
             bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
 
             if (!isAuthenticated)
@@ -174,7 +173,6 @@ namespace ASP_Starbucks.Controllers
             }
 
             Type userType = user.GetType();
-
             // check if at least one field is present
             bool isAllNulls = true;
 
@@ -271,10 +269,11 @@ namespace ASP_Starbucks.Controllers
 
             await saveTask;
 
+
             return Json(new
             {
-                Status = "ok",
-                Message = "Changes were saved"
+                Status = "Ok",
+                Message = "Successfully saved!"
             });
         }
 
@@ -341,12 +340,56 @@ namespace ASP_Starbucks.Controllers
         {
             try
             {
-                return Json(new { Status = "Ok", User = _Authenticate() });
+                // Check if user is in the session
+                if (HttpContext.Session.Keys.Contains(AuthSessionMiddleware.SessionKey))
+                {
+                    var user = JsonSerializer.Deserialize<Data.Entities.User>(
+                        HttpContext.Session.GetString(AuthSessionMiddleware.SessionKey)!)!;
+                    return Json(new { Status = "Ok", User = user });
+
+                }
+
+                // If user is not in the session, then authenticate
+                string authHeader = Request.Headers.Authorization.ToString();
+                if (!string.IsNullOrEmpty(authHeader))
+                {
+                    var user = _Authenticate();
+                    AuthSessionMiddleware.SaveAuth(HttpContext, user);
+                    return Json(new { Status = "Ok", User = user });
+                }
+
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Json(new { Status = "Error", Error = "Unathorized" });
+
             }
             catch (Exception ex)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return Json(new { Status = "Error", Error = ex.Message});
+                return Json(new { Status = "Error", Error = ex.Message });
+            }
+        }
+
+        public JsonResult ApiLogout()
+        {
+            try
+            {
+                bool isAuthenticated = HttpContext.User.Identity?.IsAuthenticated ?? false;
+
+                if (!isAuthenticated)
+                {
+                    return Json(new
+                    {
+                        Status = "error",
+                        Message = "Unauthorized"
+                    });
+                }
+                AuthSessionMiddleware.Logout(HttpContext);
+
+                return Json(new { Status = "Ok", Message = "Successfully logged out" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Status = "Error", Message = ex.Message });
             }
         }
 
@@ -354,8 +397,9 @@ namespace ASP_Starbucks.Controllers
         {
             try
             {
-                AuthSessionMiddleware.SaveAuth(HttpContext, _Authenticate());
-                return NoContent();
+                var user = _Authenticate();
+                AuthSessionMiddleware.SaveAuth(HttpContext, user);
+                return Json(new { Status = "Ok", User = user });
             }
             catch (Exception ex)
             {

@@ -1,5 +1,5 @@
-﻿function checkInputFocusIn(input, label, isRequied, firstFocus = null) {
-    if (isRequied) {
+﻿function checkInputFocusIn(input, label, isRequired, firstFocus = null) {
+    if (isRequired) {
         if (input.value.length === 0) {
             if (firstFocus) {
                 label.style.transform = "scale(.85) translateY(-2rem) translateX(.15rem)";

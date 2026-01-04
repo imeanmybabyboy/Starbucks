@@ -23,9 +23,13 @@ namespace ASP_Starbucks.Middleware
                 return;
             }
 
+
             if (context.Session.Keys.Contains(SessionKey))
             {
-                var user = JsonSerializer.Deserialize<Data.Entities.User>(context.Session.GetString(SessionKey)!)!;
+                var jsonUser = context.Session.GetString(SessionKey);
+                Console.WriteLine(jsonUser);
+
+                var user = JsonSerializer.Deserialize<Data.Entities.User>(jsonUser!)!;
 
                 context.User = new ClaimsPrincipal(
                         new ClaimsIdentity(
