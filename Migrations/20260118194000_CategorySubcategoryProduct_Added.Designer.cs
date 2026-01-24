@@ -4,6 +4,7 @@ using ASP_Starbucks.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASP_Starbucks.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260118194000_CategorySubcategoryProduct_Added")]
+    partial class CategorySubcategoryProduct_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,33 +44,7 @@ namespace ASP_Starbucks.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("3d8682f6-942b-4d90-94e6-4d0f01535516"),
-                            Name = "Fan Favorites",
-                            Slug = "fan-favorites"
-                        },
-                        new
-                        {
-                            Id = new Guid("07e75e04-8ef2-479c-be21-6db01b5e5781"),
-                            Name = "Drinks",
-                            Slug = "drinks"
-                        },
-                        new
-                        {
-                            Id = new Guid("b936efe2-4473-4e54-9ef5-170fb63f992b"),
-                            Name = "Food",
-                            Slug = "food"
-                        },
-                        new
-                        {
-                            Id = new Guid("7e7becf1-c635-41b7-b4a9-5aa9cbdaca90"),
-                            Name = "At Home Coffee",
-                            Slug = "at-home-coffee"
-                        });
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("ASP_Starbucks.Data.Entities.Product", b =>
@@ -151,7 +128,7 @@ namespace ASP_Starbucks.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("ASP_Starbucks.Data.Entities.Size", b =>
@@ -196,7 +173,7 @@ namespace ASP_Starbucks.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Subcategories");
+                    b.ToTable("Subcategory");
                 });
 
             modelBuilder.Entity("ASP_Starbucks.Data.Entities.Token", b =>

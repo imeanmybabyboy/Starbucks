@@ -10,26 +10,6 @@ namespace ASP_Starbucks.Controllers
         {
             return View();
         }
-        
-        public IActionResult Menu()
-        {
-            return View();
-        }
-        
-        public IActionResult Rewards()
-        {
-            return View();
-        }
-        
-        public IActionResult GiftCards()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

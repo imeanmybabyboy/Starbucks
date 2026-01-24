@@ -4,6 +4,7 @@ using ASP_Starbucks.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASP_Starbucks.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260118194912_CategoriesSeeded")]
+    partial class CategoriesSeeded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,7 @@ namespace ASP_Starbucks.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Category");
 
                     b.HasData(
                         new
@@ -151,7 +154,7 @@ namespace ASP_Starbucks.Migrations
 
                     b.HasIndex("SubcategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("ASP_Starbucks.Data.Entities.Size", b =>
@@ -196,7 +199,7 @@ namespace ASP_Starbucks.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Subcategories");
+                    b.ToTable("Subcategory");
                 });
 
             modelBuilder.Entity("ASP_Starbucks.Data.Entities.Token", b =>

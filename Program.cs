@@ -38,7 +38,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendPolicy", policy =>
     {
         policy
-        .WithOrigins("http://localhost:5173")
+        .WithOrigins("http://localhost:5173", "https://bnnvkh76-5500.euw.devtunnels.ms")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -60,9 +60,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("FrontendPolicy");
-
 app.UseRouting();
+
+app.UseCors("FrontendPolicy");
 
 app.UseSession();
 app.UseAuthSession(); // Custom middleware

@@ -12,6 +12,10 @@ namespace ASP_Starbucks.Data
         public DbSet<Entities.UserRole> UserRoles { get; set; }
         public DbSet<Entities.Token> Tokens { get; set; }
 
+        public DbSet<Entities.Category> Categories { get; set; }
+        public DbSet<Entities.Subcategory> Subcategories { get; set; }
+        public DbSet<Entities.Product> Products { get; set; }
+
         public DataContext(DbContextOptions options, IKdfService kdfService) : base(options)
         {
             _kdfService = kdfService;
@@ -32,6 +36,29 @@ namespace ASP_Starbucks.Data
                 .HasOne(t => t.User)
                 .WithMany();
 
+
+            modelBuilder.Entity<Entities.Subcategory>()
+                .HasOne(s => s.Category)
+                .WithMany(c => c.Subcategories)
+                .HasForeignKey(s => s.CategoryId);
+
+            modelBuilder.Entity<Entities.Product>()
+                .HasOne(p => p.Subcategory)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SubcategoryId);
+
+            modelBuilder.Entity<Entities.Product>()
+                .HasOne(p => p.Size)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SizeId);
+
+            modelBuilder.Entity<Entities.Category>()
+                .HasIndex(c => c.Slug)
+                .IsUnique();
+
+            modelBuilder.Entity<Entities.Subcategory>()
+                .HasIndex(s => s.Slug)
+                .IsUnique();
 
             ////// Seeding
             modelBuilder.Entity<Entities.UserRole>()
@@ -89,6 +116,36 @@ namespace ASP_Starbucks.Data
                         Salt = userSalt,
                         Dk = userDk,
                         RegisteredAt = DateTime.MinValue,
+                    }
+                );
+
+
+            // categories
+            modelBuilder.Entity<Entities.Category>()
+                .HasData(
+                    new Entities.Category
+                    {
+                        Id = Guid.Parse("3D8682F6-942B-4D90-94E6-4D0F01535516"),
+                        Name = "Fan Favorites",
+                        Slug = "fan-favorites"
+                    },
+                    new Entities.Category
+                    {
+                        Id = Guid.Parse("07E75E04-8EF2-479C-BE21-6DB01B5E5781"),
+                        Name = "Drinks",
+                        Slug = "drinks"
+                    },
+                    new Entities.Category
+                    {
+                        Id = Guid.Parse("B936EFE2-4473-4E54-9EF5-170FB63F992B"),
+                        Name = "Food",
+                        Slug = "food"
+                    },
+                    new Entities.Category
+                    {
+                        Id = Guid.Parse("7E7BECF1-C635-41B7-B4A9-5AA9CBDACA90"),
+                        Name = "At Home Coffee",
+                        Slug = "at-home-coffee"
                     }
                 );
         }
