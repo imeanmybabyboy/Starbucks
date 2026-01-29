@@ -1,5 +1,6 @@
 using ASP_Starbucks.Data;
 using ASP_Starbucks.Middleware;
+using ASP_Starbucks.Services.App;
 using ASP_Starbucks.Services.Hash;
 using ASP_Starbucks.Services.Kdf;
 using ASP_Starbucks.Services.Random;
@@ -10,13 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddHttpContextAccessor();
 
 // Custom services
 builder.Services.AddRandom();
 builder.Services.AddSalt();
 builder.Services.AddHash();
 builder.Services.AddKdf();
+builder.Services.AddScoped<IAppService, AppService>();
 
 // Sessions
 builder.Services.AddDistributedMemoryCache();

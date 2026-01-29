@@ -1,4 +1,5 @@
 ﻿using ASP_Starbucks.Data;
+using ASP_Starbucks.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -12,20 +13,12 @@ namespace ASP_Starbucks.Controllers
             try
             {
                 var menuCategories = dataContext.Categories.ToList();
-                
-                return Json(new
-                {
-                    Status = "Ok",
-                    data = menuCategories
-                });
+
+                return Json(ApiResponse.Ok(menuCategories));
             }
             catch (Exception ex)
             {
-                return Json(new
-                {
-                    Status = "Error",
-                    Error = ex.Message
-                });
+                return Json(ApiResponse.Error(ex.Message));
             }
         }
     }
