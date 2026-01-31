@@ -32,21 +32,21 @@ namespace ASP_Starbucks.Controllers
 
         public async Task<JsonResult> ApiUpdate([FromBody] UserUpdateFormModel userFormModel)
         {
-            var result = await _appService.UpdateUserAsync(userFormModel, HttpContext);
+            var result = await _appService.UpdateUserAsync(userFormModel);
 
             return new JsonResult(result);
         }
 
         public async Task<IActionResult> ApiAuthenticateAsync()
         {
-            var result = await _appService.ApiAuthenticateAsync(HttpContext, Request.Headers.Authorization!, HttpContext.Session);
+            var result = await _appService.AuthenticateAsync(Request.Headers.Authorization!, HttpContext.Session);
 
             return Json(result);
         }
 
         public JsonResult ApiLogout()
         {
-            var result = _appService.ApiLogout(HttpContext);
+            var result = _appService.Logout();
 
             return Json(result);
         }

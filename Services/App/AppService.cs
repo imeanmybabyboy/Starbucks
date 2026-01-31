@@ -3,6 +3,7 @@ using ASP_Starbucks.Data.Entities;
 using ASP_Starbucks.Exceptions;
 using ASP_Starbucks.Middleware;
 using ASP_Starbucks.Models.Responses;
+using ASP_Starbucks.Models.Shop;
 using ASP_Starbucks.Models.User;
 using ASP_Starbucks.Services.Kdf;
 using Azure;
@@ -10,11 +11,13 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Numerics;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ASP_Starbucks.Services.App
 {
@@ -22,29 +25,37 @@ namespace ASP_Starbucks.Services.App
     {
         private readonly DataContext _dataContext;
         private readonly IKdfService _kdfService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private const string UnauthorizedError = "Unauthorized action";
         private const string UserNotFoundError = "User not found";
         private const string NoChangesToSaveError = "No changes to save";
         private const string ChangesSavedWarning = "Changes were saved successfully";
-        //private const string UnavailableHttpContextError = "HttpContext is not available";
+        private const string UnavailableHttpContextError = "HttpContext is not available";
         private const string MissingAuthorizationHeaderError = "Missing Authorization header";
         private const string InvalidAuthorizationSchemeError = "Invalid Authorization scheme";
         private const string CredentialsError = "Invalid or empty Credentials";
         private const string AuthorizationFormatError = "Invalid Authorization format";
         private const string InvalidUserPasswordFormat = "Invalid user-pass format";
         private const string InvalidCredentialsError = "The email or password you entered is not valid. Please try again";
+        private const string CategoryExistsError = "Category already exists";
+        private const string CategoryAddedWarning = "Category was added";
 
-        public AppService(DataContext dataContext, IKdfService kdfService)
+        public AppService(DataContext dataContext, IKdfService kdfService, IHttpContextAccessor httpContextAccessor)
         {
             _dataContext = dataContext;
             _kdfService = kdfService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ApiResponse> UpdateUserAsync(UserUpdateFormModel formModel, HttpContext httpContext)
+        public async Task<ApiResponse> UpdateUserAsync(UserUpdateFormModel formModel)
         {
             try
             {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext == null)
+                    return ApiResponse.Error(UnavailableHttpContextError);
+
                 if (!httpContext.User.Identity!.IsAuthenticated)
                     return ApiResponse.Error(UnauthorizedError);
 
@@ -200,7 +211,7 @@ namespace ASP_Starbucks.Services.App
             return user;
         }
 
-        public async Task<ApiResponse> ApiAuthenticateAsync(HttpContext httpContext, string authHeader, ISession session)
+        public async Task<ApiResponse> AuthenticateAsync(string authHeader, ISession session)
         {
             // Get user from the session
             if (session.Keys.Contains(AuthSessionMiddleware.SessionKey))
@@ -211,25 +222,73 @@ namespace ASP_Starbucks.Services.App
             if (string.IsNullOrEmpty(authHeader))
                 return ApiResponse.Error(UnauthorizedError);
 
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+                return ApiResponse.Error(UnavailableHttpContextError);
+
             var user = await _AuthenticateAsync(authHeader);
             AuthSessionMiddleware.SaveAuth(httpContext, user);
 
             return ApiResponse.Ok(new UserProfileViewModel(user));
         }
 
-        public ApiResponse ApiLogout(HttpContext httpContext)
+        public ApiResponse Logout()
         {
             try
             {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext == null)
+                    return ApiResponse.Error(UnavailableHttpContextError);
+
                 bool isAuthenticated = httpContext.User.Identity?.IsAuthenticated ?? false;
 
                 if (!isAuthenticated)
                 {
                     ApiResponse.Error(UnauthorizedError);
                 }
-                AuthSessionMiddleware.Logout(httpContext);
+                _ = AuthSessionMiddleware.Logout(httpContext);
 
                 return ApiResponse.Ok();
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Error(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ApiResponse> AddCategory(ShopAddCategoryFormModel formModel)
+        {
+            try
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext == null)
+                    return ApiResponse.Error(UnavailableHttpContextError);
+
+                if (!httpContext.User.Identity!.IsAuthenticated)
+                    return ApiResponse.Error(UnauthorizedError);
+
+                ///////////////// Add new category
+                bool categoryExists = _dataContext.Categories.Where(c => c.Name.ToLower() == formModel.Name.ToLower()).Any();
+
+                if (categoryExists)
+                    return ApiResponse.Error(CategoryExistsError);
+
+                var name = string.Join(" ", formModel.Name.Split(" ").Select(el => el[0].ToString().ToUpper() + el.Substring(1))); // name capitalization
+                var slug = string.Join("-", formModel.Name.Split(" ").Select(el => el.ToLower())); // slug using '-' division + .toLower()
+
+                _dataContext.Categories.Add(new Category()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    Slug = slug,
+                });
+
+                var categories = _dataContext.Categories.ToList();
+
+                await _dataContext.SaveChangesAsync();
+
+                return ApiResponse.Ok(categories, CategoryAddedWarning);
             }
             catch (Exception ex)
             {

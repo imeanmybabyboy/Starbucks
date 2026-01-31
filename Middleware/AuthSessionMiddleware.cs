@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ASP_Starbucks.Middleware
 {
@@ -22,7 +24,6 @@ namespace ASP_Starbucks.Middleware
                 context.Response.Redirect(context.Request.Path);
                 return;
             }
-
 
             if (context.Session.Keys.Contains(SessionKey))
             {
@@ -51,7 +52,7 @@ namespace ASP_Starbucks.Middleware
             context.Session.SetString(AuthSessionMiddleware.SessionKey, JsonSerializer.Serialize(user));
         }
 
-        public static void Logout(HttpContext context)
+        public static async Task Logout(HttpContext context)
         {
             context.Session.Remove(AuthSessionMiddleware.SessionKey);
         }

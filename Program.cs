@@ -68,7 +68,6 @@ app.UseCors("FrontendPolicy");
 
 app.UseSession();
 app.UseAuthSession(); // Custom middleware
-app.UseAuthorization();
 
 app.MapStaticAssets();
 
